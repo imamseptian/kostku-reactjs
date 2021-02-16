@@ -5,15 +5,87 @@ import moment from "moment";
 import placeholder from "../../assets/img/blank.png";
 import { useHistory } from "react-router-dom";
 import { APIUrl } from "../../functions/MyVar";
+// import Cropper from "react-easy-crop";
+import Modal from "react-modal";
+import ReactCrop from "react-image-crop";
+import "react-image-crop/dist/ReactCrop.css";
 
 const MainForm = () => {
   const { id_kelas, id_kamar } = useParams();
   let history = useHistory();
-  const [isLoading, setisLoading] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [id_kamar]);
+
+  // MODAL VARIABLE
+  // const customStyles = {
+  //   content: {
+  //     top: "50%",
+  //     left: "50%",
+  //     right: "auto",
+  //     bottom: "auto",
+  //     //   marginRight: "-50%",
+  //     transform: "translate(-50%, -50%)",
+  //     width: window.innerWidth > 700 ? "65%" : "90%",
+  //     maxHeight: "90%",
+  //   },
+  //   overlay: { zIndex: 1000 },
+  // };
+
+  // const [showModalKTP, setshowModalKTP] = useState(false);
+  // const [showModalDiri, setshowModalDiri] = useState(false);
+
+  // const [oriKTP, setoriKTP] = useState(null);
+  // const [oriDiri, setoriDiri] = useState(null);
+
+  // const [imageKTP, setImageKTP] = useState(null);
+  // const [imageDiri, setImageDiri] = useState(null);
+
+  // const [cropKTP, setCropKTP] = useState({
+  //   aspect: 3 / 2,
+  //   width: 120,
+  //   height: 80,
+  //   x: 50,
+  //   y: 50,
+  // });
+
+  // const [cropDiri, setCropDiri] = useState({
+  //   aspect: 3 / 2,
+  //   width: 120,
+  //   height: 80,
+  //   x: 50,
+  //   y: 50,
+  // });
+
+  // const [resultKTP, setresultKTP] = useState(null);
+  // const [resultDiri, setresultDiri] = useState(null);
+
+  // const getCroppedImg = (callback, image, crop) => {
+  //   const canvas = document.createElement("canvas");
+  //   const scaleX = image.naturalWidth / image.width;
+  //   const scaleY = image.naturalHeight / image.height;
+  //   canvas.width = crop.width;
+  //   canvas.height = crop.height;
+  //   const ctx = canvas.getContext("2d");
+  //   ctx.drawImage(
+  //     image,
+  //     crop.x * scaleX,
+  //     crop.y * scaleY,
+  //     crop.width * scaleX,
+  //     crop.height * scaleY,
+  //     0,
+  //     0,
+
+  //     crop.width,
+  //     crop.height
+  //   );
+  //   console.log(image.naturalWidth);
+  //   console.log(image.naturalHeight);
+  //   const base64Image = canvas.toDataURL("image/jpeg");
+  //   // setresult(base64Image);
+  //   callback(base64Image);
+  // };
 
   const [pendaftar, setpendaftar] = useState({
     nama: "",
@@ -71,47 +143,45 @@ const MainForm = () => {
   const [dataProvinsi, setdataProvinsi] = useState([]);
   const [dataKota, setdataKota] = useState([]);
 
+  // useEffect(() => {
+  //   // setpendaftar({ ...pendaftar, barang_tambahan: JSON.stringify(inputList) });
+  //   setpendaftar({ ...pendaftar, barang_tambahan: inputList });
+  // }, [inputList]);
+
+  // useEffect(() => {
+  //   // setpendaftar({ ...pendaftar, barang_tambahan: JSON.stringify(inputList) });
+  //   setpendaftar({ ...pendaftar, barang_tambahan: inputList });
+  // }, [inputList]);
+
   const setForm = (field, value) => {
     setpendaftar({ ...pendaftar, [field]: value });
   };
 
   useEffect(() => {
-    setisLoading(true);
     axios
-      .get(`${APIUrl}/api/list_provinsi`)
+      .get(`https://dev.farizdotid.com/api/daerahindonesia/provinsi`)
       .then((res) => {
         // console.log(res.data);
 
         setdataProvinsi(res.data.provinsi);
-        setisLoading(false);
       })
       .catch((error) => {
         // console.log(ProvURL);
         console.log(error);
         console.log("error boss");
-        setisLoading(false);
       });
   }, []);
 
   useEffect(() => {
-    console.log("kota triggered");
-    if (pendaftar.provinsi != null) {
-      setisLoading(true);
-      // console.log("kontolodon");
-      console.log(`${APIUrl}/api/list_kota/${pendaftar.provinsi}`);
-      // alert(pendaftar.provinsi);
+    if (pendaftar.provinsi !== undefined) {
       axios
-        .get(`${APIUrl}/api/list_kota/${pendaftar.provinsi}`)
+        .get(
+          `https://dev.farizdotid.com/api/daerahindonesia/kota?id_provinsi=${pendaftar.provinsi}`
+        )
         .then((response) => {
-          setisLoading(false);
           // console.log(response.data);
           // console.log(URLkota);
-          setdataKota(response.data.kota);
-
-          // console.log(response.data);
-        })
-        .catch((error) => {
-          setisLoading(false);
+          setdataKota(response.data.kota_kabupaten);
         });
     }
 
@@ -138,7 +208,6 @@ const MainForm = () => {
     inputList.forEach((x, i) => {
       x.error = "";
     });
-    setisLoading(true);
     axios
       .post(APIUrl + "/api/daftarkost", {
         ...pendaftar,
@@ -149,14 +218,8 @@ const MainForm = () => {
       .then((response) => {
         console.log(response.data);
         if (response.data.success) {
-          history.replace("/detail-kelas/" + id_kelas);
-          // alert("sukses");
-          console.log({
-            ...pendaftar,
-            foto_ktp: srcKTP,
-            foto_diri: srcDiri,
-            barang_tambahan: inputList,
-          });
+          // history.replace("/detail-kelas/" + id_kelas);
+          alert("sukses");
         } else {
           inputList.forEach((x, i) => {
             let nameError = "barang_tambahan." + i + ".nama";
@@ -209,10 +272,9 @@ const MainForm = () => {
               : null,
           });
           if (response.data.errors.barang_tambahan) {
-            console.log("error barang");
+            console.log("aso");
           }
           window.scrollTo(0, 0);
-          setisLoading(false);
         }
 
         // if (data.success) {
@@ -243,7 +305,6 @@ const MainForm = () => {
         // console.log(response.data);
       })
       .catch((error) => {
-        setisLoading(false);
         console.log(error);
         console.log(pendaftar);
       });
@@ -285,7 +346,7 @@ const MainForm = () => {
                 className="block uppercase tracking-wide text-grey-darker text-xs font-bold mb-2"
                 for="grid-state"
               >
-                Jenis Kelamin
+                Kelamin
               </label>
               <div className="relative">
                 <select
@@ -300,8 +361,8 @@ const MainForm = () => {
                   }}
                 >
                   <option>Jenis Kelamin</option>
-                  <option value={1}>Pria</option>
-                  <option value={2}>Wanita</option>
+                  <option value={1}>Laki-Laki</option>
+                  <option value={2}>Perempuan</option>
                 </select>
                 <div className="right-0 top-1/3 absolute px-2 text-grey-darker">
                   <svg
@@ -355,7 +416,6 @@ const MainForm = () => {
               </label>
               <div className="relative">
                 <select
-                  disabled={isLoading}
                   className={`block appearance-none ${
                     errorMsg.provinsi !== null && "ring-2 ring-red-500"
                   } w-full bg-grey-lighter border border-grey-lighter text-grey-darker py-3 px-4 pr-8 rounded`}
@@ -371,7 +431,7 @@ const MainForm = () => {
                   {dataProvinsi.map((item, index) => {
                     return (
                       <option key={index} value={item.id}>
-                        {item.name}
+                        {item.nama}
                       </option>
                     );
                   })}
@@ -399,7 +459,6 @@ const MainForm = () => {
               </label>
               <div className="relative">
                 <select
-                  disabled={isLoading}
                   className={`block appearance-none ${
                     errorMsg.kota !== null && "ring-2 ring-red-500"
                   } w-full bg-grey-lighter border border-grey-lighter text-grey-darker py-3 px-4 pr-8 rounded`}
@@ -409,13 +468,13 @@ const MainForm = () => {
                       // console.log(e.target.value);
                     }
                   }}
-                  value={pendaftar.kota === null ? "" : pendaftar.kota}
+                  value={pendaftar.kota}
                 >
                   <option>Pilih Kota</option>
                   {dataKota.map((item, index) => {
                     return (
                       <option key={index} value={item.id}>
-                        {item.name}
+                        {item.nama}
                       </option>
                     );
                   })}
@@ -434,6 +493,24 @@ const MainForm = () => {
                 )}
               </div>
             </div>
+            {/* <div className="md:w-1/2 px-3 mb-6 md:mb-0">
+            <label className="block uppercase tracking-wide text-grey-darker text-xs font-bold mb-2">
+              Alamat
+            </label>
+            <input
+              className="appearance-none block w-full bg-grey-lighter text-grey-darker border border-red rounded py-3 px-4 mb-3"
+              type="text"
+              placeholder="Alamat"
+              value={pendaftar.alamat}
+              onChange={(e) => {
+                if (e.target.value !== null) {
+                  setForm("alamat", e.target.value);
+                }
+              }}
+            />
+
+         
+          </div> */}
           </div>
 
           {/* row 4  */}
@@ -570,6 +647,14 @@ const MainForm = () => {
               } block w-full bg-grey-lighter text-grey-darker border border-grey-lighter rounded py-3 px-4 mb-3`}
               id="grid-first-name"
               type="file"
+              // onChange={(e) => {
+              //   if (e.target.files[0]) {
+              //     setImg({
+              //       src: URL.createObjectURL(e.target.files[0]),
+              //       alt: e.target.files[0].name,
+              //     });
+              //   }
+              // }}
               onChange={(e) => {
                 console.log("change kTP");
 
@@ -613,11 +698,26 @@ const MainForm = () => {
 block w-full bg-grey-lighter text-grey-darker border border-grey-lighter rounded py-3 px-4 mb-3`}
               id="grid-first-name"
               type="file"
+              // onChange={(e) => {
+              //   if (e.target.files[0]) {
+              //     setImg({
+              //       src: URL.createObjectURL(e.target.files[0]),
+              //       alt: e.target.files[0].name,
+              //     });
+              //   }
+              // }}
               onChange={(e) => {
                 console.log("change Diri");
 
                 let reader = new FileReader();
                 let file = e.target.files[0];
+
+                // if (e.target.files[0]) {
+                //   setImgDiri({
+                //     srcDiri: URL.createObjectURL(e.target.files[0]),
+                //     altDiri: e.target.files[0].name,
+                //   });
+                // }
 
                 reader.onload = function (upload) {
                   // console.log(upload.target.result);

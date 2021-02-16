@@ -131,7 +131,9 @@ const DetailKelas = () => {
           </div>
           <div className="flex justify-center my-3">
             <h1 className="text-2xl font-semibold text-gray-800">
-              Daftar Kamar Tersedia
+              {kamar.length < 1
+                ? "Maaf Tidak Ada Kamar Tersedia"
+                : "Daftar Kamar Tersedia"}
             </h1>
           </div>
 

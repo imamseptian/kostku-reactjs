@@ -7,6 +7,7 @@ import { TestPage } from "./pages";
 import { DetailKost, DetailKelas } from "./pages/HalamanDetail";
 import { MainForm } from "./pages/FormDaftar";
 import { Link } from "react-router-dom";
+import { CobaCrop } from "./pages";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Switch>
             <Route exact path="/">
               <TestPage />
+              {/* <CobaCrop /> */}
             </Route>
             <Route exact path="/infokost/:id_kost">
               <DetailKost />
